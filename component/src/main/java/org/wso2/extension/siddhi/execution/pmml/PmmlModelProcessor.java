@@ -37,8 +37,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.xml.sax.InputSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.PMML;
 import org.jpmml.evaluator.Evaluator;
@@ -56,8 +55,7 @@ import javax.xml.transform.Source;
 
 public class PmmlModelProcessor extends StreamProcessor {
 
-    private static final Log logger = LogFactory.getLog(PmmlModelProcessor.class);
-
+    private static Logger logger = Logger.getLogger(PmmlModelProcessor.class);
     private String pmmlDefinition;
     private boolean attributeSelectionAvailable;
     private Map<FieldName, int[]> attributeIndexMap;           // <feature-name, [event-array-type][attribute-index]> pairs

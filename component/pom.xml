@@ -70,8 +70,8 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.log4j.wso2</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
 
@@ -94,7 +94,13 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.jpmml.*,
+                            org.dmg.pmml.*,
+]                        </Private-Package>
                         <Export-Package>
+                            !org.jpmml.*,
+                            !org.dmg.pmml.*,
                             org.wso2.extension.siddhi.execution.pmml.*
                         </Export-Package>
                         <Import-Package>
