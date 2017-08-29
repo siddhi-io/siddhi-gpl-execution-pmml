@@ -26,10 +26,12 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -39,11 +41,15 @@ public class PMMLModelProcessorTestCase {
 
     private volatile boolean eventArrived;
     private volatile boolean isSuccessfullyExecuted;
+    private AtomicInteger eventCount = new AtomicInteger(0);
+    private long waitTime = 5000;
+    private long timeout = 10000;
 
     @BeforeTest
     public void init() {
         eventArrived = false;
         isSuccessfullyExecuted = false;
+        eventCount.set(0);
     }
 
     @Test
@@ -72,6 +78,7 @@ public class PMMLModelProcessorTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
+                    eventCount.getAndIncrement();
                     isSuccessfullyExecuted = inEvents[0].getData(13).equals("1");
                 }
             }
@@ -81,7 +88,7 @@ public class PMMLModelProcessorTestCase {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50, 1, 2, 3, 4, 5});
-        Thread.sleep(1000);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(isSuccessfullyExecuted);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
@@ -124,7 +131,7 @@ public class PMMLModelProcessorTestCase {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50, 1, 2, 3, 4, 5});
-        Thread.sleep(1000);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(isSuccessfullyExecuted);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
@@ -167,7 +174,7 @@ public class PMMLModelProcessorTestCase {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50, 1, 2, 3, 4, 5});
-        Thread.sleep(1000);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(isSuccessfullyExecuted);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
@@ -210,7 +217,7 @@ public class PMMLModelProcessorTestCase {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50, 1, 2, 3, 4, 5});
-        Thread.sleep(1000);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(isSuccessfullyExecuted);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
@@ -250,7 +257,7 @@ public class PMMLModelProcessorTestCase {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         inputHandler.send(new Object[]{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0});
-        Thread.sleep(1000);
+        SiddhiTestHelper.waitForEvents(waitTime, 1, eventCount, timeout);
         Assert.assertTrue(isSuccessfullyExecuted);
         Assert.assertTrue(eventArrived);
         siddhiAppRuntime.shutdown();
