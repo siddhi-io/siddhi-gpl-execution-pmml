@@ -28,6 +28,7 @@ import org.jpmml.evaluator.InvalidResultException;
 import org.jpmml.evaluator.ModelEvaluator;
 import org.jpmml.evaluator.ModelEvaluatorFactory;
 import org.jpmml.evaluator.OutputField;
+import org.jpmml.evaluator.PMMLException;
 import org.jpmml.evaluator.TargetField;
 import org.wso2.extension.siddhi.gpl.execution.pmml.util.PMMLUtil;
 import org.wso2.siddhi.annotation.Example;
@@ -113,19 +114,17 @@ public class PmmlModelProcessor extends StreamProcessor {
     private boolean attributeSelectionAvailable;
     // <feature-name, [event-array-type][attribute-index]> pairs
     private Map<InputField, int[]> attributeIndexMap;
-
     // All the input fields defined in the pmml definition
     private List<InputField> inputFields;
     // Output fields of the pmml definition
     private Map<FieldName, org.dmg.pmml.DataType> outputFields = new LinkedHashMap<>();
-
-
     private Evaluator evaluator;
 
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition,
                                    ExpressionExecutor[] expressionExecutors,
                                    ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+
         if (attributeExpressionExecutors.length == 0) {
             throw new SiddhiAppValidationException("PMML model definition not available.");
         } else {
@@ -187,7 +186,9 @@ public class PmmlModelProcessor extends StreamProcessor {
                 inData.put(inputField.getName(), inputField.prepare(String.valueOf(dataValue)));
             } catch (InvalidResultException e) {
                 logger.error(String.format("Incompatible value for field: %s. Prediction might be erroneous.",
-                        inputField.getName()));
+                        inputField.getName()), e);
+                throw new SiddhiAppRuntimeException(String.format("Incompatible value for field: %s. Prediction might "
+                        + "be erroneous.", inputField.getName()), e);
             }
         }
 
@@ -205,8 +206,8 @@ public class PmmlModelProcessor extends StreamProcessor {
                 }
                 complexEventPopulater.populateComplexEvent(event, output);
                 nextProcessor.process(streamEventChunk);
-            } catch (Exception e) {
-                logger.error("Error while predicting", e);
+            } catch (PMMLException e) {
+                logger.error("Error while predicting. Invalid result occurred while evaluating the model", e);
                 throw new SiddhiAppRuntimeException("Error while predicting", e);
             }
         }
@@ -214,6 +215,7 @@ public class PmmlModelProcessor extends StreamProcessor {
 
     @Override
     public void start() {
+
         try {
             populateFeatureAttributeMapping();
         } catch (Exception e) {
@@ -269,9 +271,10 @@ public class PmmlModelProcessor extends StreamProcessor {
     /**
      * Generate the output attribute list.
      *
-     * @return List
+     * @return List Siddhi Output Attribute List
      */
     private List<Attribute> generateOutputAttributes() {
+
         List<Attribute> outputAttributes = new ArrayList<>();
         for (Map.Entry<FieldName, org.dmg.pmml.DataType> entry : outputFields.entrySet()) {
             FieldName fieldName = entry.getKey();
@@ -287,9 +290,10 @@ public class PmmlModelProcessor extends StreamProcessor {
     /**
      * Map the model output fields to Siddhi Attributes.
      *
-     * @return Attribute.Type
+     * @return Attribute.Type Mapped Siddhi Attribute
      */
     private Attribute.Type mapOutputAttributes(org.dmg.pmml.DataType dataType) {
+
         Attribute.Type type = null;
         if (dataType.equals(org.dmg.pmml.DataType.DOUBLE)) {
             type = Attribute.Type.DOUBLE;
@@ -301,6 +305,8 @@ public class PmmlModelProcessor extends StreamProcessor {
             type = Attribute.Type.BOOL;
         } else if (dataType.equals(org.dmg.pmml.DataType.STRING)) {
             type = Attribute.Type.STRING;
+        } else {
+            throw new IllegalArgumentException("Output type " + dataType + " is not supported by the extension");
         }
         return type;
     }
@@ -316,6 +322,5 @@ public class PmmlModelProcessor extends StreamProcessor {
 
     @Override
     public void restoreState(Map<String, Object> map) {
-
     }
 }
