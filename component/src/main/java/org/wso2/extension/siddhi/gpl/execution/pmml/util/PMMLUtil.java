@@ -59,7 +59,6 @@ public class PMMLUtil {
             source = ImportFilter.apply(pmmlSource);
             return JAXBUtil.unmarshalPMML(source);
         } catch (SAXException | JAXBException | FileNotFoundException e) {
-            logger.error("Failed to unmarshal the pmml definition: " + e.getMessage());
             throw new SiddhiAppCreationException("Failed to unmarshal the pmml definition: "
                     + pmmlDefinition + ". " + e.getMessage(), e);
         }
