@@ -26,7 +26,7 @@
 
     <groupId>org.wso2.extension.siddhi.gpl.execution.pmml</groupId>
     <artifactId>siddhi-gpl-execution-pmml-parent</artifactId>
-    <version>4.0.15-SNAPSHOT</version>
+    <version>4.0.15</version>
     <packaging>pom</packaging>
 
     <name>Siddhi gpl execution pmml Extension Parent</name>
@@ -42,7 +42,7 @@
         <url>https://github.com/wso2-extensions/siddhi-gpl-execution-pmml.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-gpl-execution-pmml.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v4.0.15</tag>
     </scm>
 
     <properties>
