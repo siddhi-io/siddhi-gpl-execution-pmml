@@ -17,11 +17,11 @@
 
 package org.wso2.extension.siddhi.gpl.execution.pmml.util;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.apache.log4j.Logger;
 import org.dmg.pmml.PMML;
 import org.jpmml.model.ImportFilter;
 import org.jpmml.model.JAXBUtil;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
