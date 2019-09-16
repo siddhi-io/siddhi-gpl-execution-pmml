@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.wso2.extension.siddhi.gpl.execution.pmml;
+package io.siddhi.gpl.execution.pmml.pmml;
 
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
@@ -40,6 +40,7 @@ import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.snapshot.state.State;
 import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.gpl.execution.pmml.pmml.util.PMMLUtil;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;
@@ -56,7 +57,6 @@ import org.jpmml.evaluator.ModelEvaluatorFactory;
 import org.jpmml.evaluator.OutputField;
 import org.jpmml.evaluator.PMMLException;
 import org.jpmml.evaluator.TargetField;
-import org.wso2.extension.siddhi.gpl.execution.pmml.util.PMMLUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +111,7 @@ import java.util.Map;
                 )
         }
 )
-public class PmmlModelProcessor extends StreamProcessor<State> {
+public class PmmlModelProcessor extends StreamProcessor<PmmlModelProcessor.ExtensionState>  {
 
     private static final Logger logger = Logger.getLogger(PmmlModelProcessor.class);
 
@@ -126,11 +126,11 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
     private Evaluator evaluator;
 
     @Override
-    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
-                                       ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                       StreamEventClonerHolder streamEventClonerHolder,
-                                       boolean outputExpectsExpiredEvents, boolean findToBeExecuted,
-                                       SiddhiQueryContext siddhiQueryContext) {
+    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+                                AbstractDefinition abstractDefinition,
+                                ExpressionExecutor[] expressionExecutors,
+                                ConfigReader configReader, StreamEventClonerHolder streamEventClonerHolder,
+                                boolean b, boolean b1, SiddhiQueryContext siddhiQueryContext) {
         if (attributeExpressionExecutors.length == 0) {
             throw new SiddhiAppValidationException("PMML model definition not available.");
         } else {
@@ -163,64 +163,65 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
                 this.outputFields.put(outputField.getName(), outputField.getDataType());
             }
         }
-        return null;
+        return () -> new ExtensionState();
     }
 
-    @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk, Processor processor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
-                           State state) {
-        StreamEvent event = streamEventChunk.getFirst();
-        Map<FieldName, FieldValue> inData = new HashMap<>();
+                           ExtensionState extensionState) {
+        while (complexEventChunk.hasNext()) {
+            StreamEvent event = complexEventChunk.next();
+            Map<FieldName, FieldValue> inData = new HashMap<>();
 
-        for (Map.Entry<InputField, int[]> entry : attributeIndexMap.entrySet()) {
-            InputField inputField = entry.getKey();
-            int[] attributeIndexArray = entry.getValue();
-            Object dataValue = null;
-            switch (attributeIndexArray[2]) {
-                case 0:
-                    dataValue = event.getBeforeWindowData()[attributeIndexArray[3]];
-                    break;
-                case 2:
-                    dataValue = event.getOutputData()[attributeIndexArray[3]];
-                    break;
-                default:
-                    break;
-            }
-            try {
-                inData.put(inputField.getName(), inputField.prepare(String.valueOf(dataValue)));
-            } catch (InvalidResultException e) {
-                logger.error(String.format("Incompatible value for field: %s. Prediction might be erroneous.",
-                        inputField.getName()), e);
-                throw new SiddhiAppRuntimeException(String.format("Incompatible value for field: %s. Prediction might "
-                        + "be erroneous.", inputField.getName()), e);
-            }
-        }
-
-        if (!inData.isEmpty()) {
-            try {
-                Map<FieldName, ?> result = evaluator.evaluate(inData);
-                Object[] output = new Object[outputFields.size()];
-                int i = 0;
-                for (FieldName fieldName : outputFields.keySet()) {
-                    if (result.containsKey(fieldName)) {
-                        Object value = result.get(fieldName);
-                        output[i] = EvaluatorUtil.decode(value);
-                        i++;
-                    }
+            for (Map.Entry<InputField, int[]> entry : attributeIndexMap.entrySet()) {
+                InputField inputField = entry.getKey();
+                int[] attributeIndexArray = entry.getValue();
+                Object dataValue = null;
+                switch (attributeIndexArray[2]) {
+                    case 0:
+                        dataValue = event.getBeforeWindowData()[attributeIndexArray[3]];
+                        break;
+                    case 2:
+                        dataValue = event.getOutputData()[attributeIndexArray[3]];
+                        break;
+                    default:
+                        break;
                 }
-                complexEventPopulater.populateComplexEvent(event, output);
-                nextProcessor.process(streamEventChunk);
-            } catch (PMMLException e) {
-                logger.error("Error while predicting. Invalid result occurred while evaluating the model", e);
-                throw new SiddhiAppRuntimeException("Error while predicting", e);
+                try {
+                    inData.put(inputField.getName(), inputField.prepare(String.valueOf(dataValue)));
+                } catch (InvalidResultException e) {
+                    logger.error(String.format("Incompatible value for field: %s. Prediction might be erroneous.",
+                            inputField.getName()), e);
+                    throw new SiddhiAppRuntimeException(String.format("Incompatible value for field: %s. " +
+                            "Prediction might be erroneous.", inputField.getName()), e);
+                }
+            }
+
+            if (!inData.isEmpty()) {
+                try {
+                    Map<FieldName, ?> result = evaluator.evaluate(inData);
+                    Object[] output = new Object[outputFields.size()];
+                    int i = 0;
+                    for (FieldName fieldName : outputFields.keySet()) {
+                        if (result.containsKey(fieldName)) {
+                            Object value = result.get(fieldName);
+                            output[i] = EvaluatorUtil.decode(value);
+                            i++;
+                        }
+                    }
+                    complexEventPopulater.populateComplexEvent(event, output);
+                    nextProcessor.process(complexEventChunk);
+                } catch (PMMLException e) {
+                    logger.error("Error while predicting. Invalid result occurred while evaluating the model",
+                            e);
+                    throw new SiddhiAppRuntimeException("Error while predicting", e);
+                }
             }
         }
     }
 
     @Override
     public void start() {
-
         try {
             populateFeatureAttributeMapping();
         } catch (Exception e) {
@@ -232,11 +233,8 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
 
     /**
      * Match the attribute index values of stream with feature names of the model.
-     *
-     * @throws Exception ExceutionPlanCreationException
      */
-    private void populateFeatureAttributeMapping() throws Exception {
-
+    private void populateFeatureAttributeMapping() {
         attributeIndexMap = new HashMap<>();
         HashMap<String, InputField> features = new HashMap<>();
 
@@ -279,7 +277,6 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
      * @return List Siddhi Output Attribute List
      */
     private List<Attribute> generateOutputAttributes() {
-
         List<Attribute> outputAttributes = new ArrayList<>();
         for (Map.Entry<FieldName, org.dmg.pmml.DataType> entry : outputFields.entrySet()) {
             FieldName fieldName = entry.getKey();
@@ -298,7 +295,6 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
      * @return Attribute.Type Mapped Siddhi Attribute
      */
     private Attribute.Type mapOutputAttributes(org.dmg.pmml.DataType dataType) {
-
         Attribute.Type type = null;
         if (dataType.equals(org.dmg.pmml.DataType.DOUBLE)) {
             type = Attribute.Type.DOUBLE;
@@ -328,5 +324,21 @@ public class PmmlModelProcessor extends StreamProcessor<State> {
     @Override
     public ProcessingMode getProcessingMode() {
         return ProcessingMode.BATCH;
+    }
+
+    static class ExtensionState extends State {
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        @Override
+        public Map<String, Object> snapshot() {
+            return null;
+        }
+
+        @Override
+        public void restore(Map<String, Object> map) {
+        }
     }
 }
