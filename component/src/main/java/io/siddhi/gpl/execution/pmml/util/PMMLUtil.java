@@ -15,28 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.wso2.extension.siddhi.gpl.execution.pmml.util;
+package io.siddhi.gpl.execution.pmml.util;
 
 import io.siddhi.core.exception.SiddhiAppCreationException;
-import org.apache.log4j.Logger;
 import org.dmg.pmml.PMML;
-import org.jpmml.model.ImportFilter;
-import org.jpmml.model.JAXBUtil;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import javax.xml.bind.JAXBException;
-import javax.xml.transform.Source;
 
 /**
  * Class implementing Pmml Model Processor.
  */
 public class PMMLUtil {
-    private static final Logger logger = Logger.getLogger(PMMLUtil.class);
 
     /**
      * Unmarshal the definition and get an executable pmml model.
@@ -47,19 +43,16 @@ public class PMMLUtil {
 
         try {
             File pmmlFile = new File(pmmlDefinition);
-            InputSource pmmlSource;
-            Source source;
+            InputStream pmmlSource;
             // if the given is a file path, read the pmml definition from the file
             if (pmmlFile.isFile() && pmmlFile.canRead()) {
-                pmmlSource = new InputSource(new FileInputStream(pmmlFile));
+                pmmlSource = new FileInputStream(pmmlFile);
             } else {
                 // else, read from the given definition
-                pmmlSource = new InputSource(new StringReader(pmmlDefinition));
+                pmmlSource = new ByteArrayInputStream(pmmlDefinition.getBytes("UTF8"));
             }
-            source = ImportFilter.apply(pmmlSource);
-            return JAXBUtil.unmarshalPMML(source);
-        } catch (SAXException | JAXBException | FileNotFoundException e) {
-            logger.error("Failed to unmarshal the pmml definition: " + e.getMessage());
+            return org.jpmml.model.PMMLUtil.unmarshal(pmmlSource);
+        } catch (SAXException | JAXBException | FileNotFoundException | UnsupportedEncodingException e) {
             throw new SiddhiAppCreationException("Failed to unmarshal the pmml definition: "
                     + pmmlDefinition + ". " + e.getMessage(), e);
         }

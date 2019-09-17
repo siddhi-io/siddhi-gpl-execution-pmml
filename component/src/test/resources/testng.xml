@@ -19,7 +19,7 @@
 <suite name="MonogStoreTestSuite" verbose="1">
     <test name="MonogStoreTest">
         <classes>
-             <class name="org.wso2.extension.siddhi.gpl.execution.pmml.PMMLModelProcessorTestCase" />
+             <class name="io.siddhi.gpl.execution.pmml.PMMLModelProcessorTestCase" />
         </classes>
     </test>
 </suite>
