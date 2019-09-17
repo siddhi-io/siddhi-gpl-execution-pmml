@@ -111,7 +111,7 @@ import java.util.Map;
                 )
         }
 )
-public class PmmlModelProcessor extends StreamProcessor<PmmlModelProcessor.ExtensionState>  {
+public class PmmlModelProcessor extends StreamProcessor<State>  {
 
     private static final Logger logger = Logger.getLogger(PmmlModelProcessor.class);
 
@@ -126,7 +126,7 @@ public class PmmlModelProcessor extends StreamProcessor<PmmlModelProcessor.Exten
     private Evaluator evaluator;
 
     @Override
-    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent,
                                 AbstractDefinition abstractDefinition,
                                 ExpressionExecutor[] expressionExecutors,
                                 ConfigReader configReader, StreamEventClonerHolder streamEventClonerHolder,
@@ -163,12 +163,12 @@ public class PmmlModelProcessor extends StreamProcessor<PmmlModelProcessor.Exten
                 this.outputFields.put(outputField.getName(), outputField.getDataType());
             }
         }
-        return () -> new ExtensionState();
+        return null;
     }
 
     protected void process(ComplexEventChunk<StreamEvent> complexEventChunk, Processor processor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
-                           ExtensionState extensionState) {
+                           State state) {
         while (complexEventChunk.hasNext()) {
             StreamEvent event = complexEventChunk.next();
             Map<FieldName, FieldValue> inData = new HashMap<>();
@@ -324,21 +324,5 @@ public class PmmlModelProcessor extends StreamProcessor<PmmlModelProcessor.Exten
     @Override
     public ProcessingMode getProcessingMode() {
         return ProcessingMode.BATCH;
-    }
-
-    static class ExtensionState extends State {
-        @Override
-        public boolean canDestroy() {
-            return false;
-        }
-
-        @Override
-        public Map<String, Object> snapshot() {
-            return null;
-        }
-
-        @Override
-        public void restore(Map<String, Object> map) {
-        }
     }
 }
