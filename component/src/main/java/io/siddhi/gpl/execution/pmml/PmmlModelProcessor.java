@@ -111,7 +111,7 @@ import java.util.Map;
                 )
         }
 )
-public class PmmlModelProcessor extends StreamProcessor<State>  {
+public class PmmlModelProcessor extends StreamProcessor<State> {
 
     private static final Logger logger = Logger.getLogger(PmmlModelProcessor.class);
 
