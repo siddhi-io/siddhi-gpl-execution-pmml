@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.siddhi.gpl.execution.pmml</groupId>
+        <groupId>io.siddhi.extension.gpl.execution.pmml</groupId>
         <artifactId>siddhi-gpl-execution-pmml-parent</artifactId>
         <version>5.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
