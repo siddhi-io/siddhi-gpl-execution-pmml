@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.siddhi.gpl.execution.pmml.pmml;
+package io.siddhi.gpl.execution.pmml;
 
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
@@ -40,7 +40,7 @@ import io.siddhi.core.query.processor.stream.StreamProcessor;
 import io.siddhi.core.util.config.ConfigReader;
 import io.siddhi.core.util.snapshot.state.State;
 import io.siddhi.core.util.snapshot.state.StateFactory;
-import io.siddhi.gpl.execution.pmml.pmml.util.PMMLUtil;
+import io.siddhi.gpl.execution.pmml.util.PMMLUtil;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.exception.SiddhiAppValidationException;

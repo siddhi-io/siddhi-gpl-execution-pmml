@@ -135,7 +135,7 @@
                         <Export-Package>
                             !org.jpmml.*,
                             !org.dmg.pmml.*,
-                            org.wso2.extension.siddhi.gpl.execution.pmml.*
+                            io.siddhi.gpl.execution.pmml.*
                         </Export-Package>
                         <Import-Package>
                             org.wso2.siddhi.core.*;version="${siddhi.version.range}",

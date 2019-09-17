@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.siddhi.gpl.execution.pmml.pmml.util;
+package io.siddhi.gpl.execution.pmml.util;
 
 import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.dmg.pmml.PMML;
