@@ -126,11 +126,11 @@ public class PmmlModelProcessor extends StreamProcessor<State>  {
     private Evaluator evaluator;
 
     @Override
-    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent,
-                                AbstractDefinition abstractDefinition,
-                                ExpressionExecutor[] expressionExecutors,
-                                ConfigReader configReader, StreamEventClonerHolder streamEventClonerHolder,
-                                boolean b, boolean b1, SiddhiQueryContext siddhiQueryContext) {
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+                                       ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean outputExpectsExpiredEvents, boolean findToBeExecuted,
+                                       SiddhiQueryContext siddhiQueryContext) {
         if (attributeExpressionExecutors.length == 0) {
             throw new SiddhiAppValidationException("PMML model definition not available.");
         } else {
@@ -166,11 +166,11 @@ public class PmmlModelProcessor extends StreamProcessor<State>  {
         return null;
     }
 
-    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk, Processor processor,
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
                            State state) {
-        while (complexEventChunk.hasNext()) {
-            StreamEvent event = complexEventChunk.next();
+        while (streamEventChunk.hasNext()) {
+            StreamEvent event = streamEventChunk.next();
             Map<FieldName, FieldValue> inData = new HashMap<>();
 
             for (Map.Entry<InputField, int[]> entry : attributeIndexMap.entrySet()) {
@@ -210,11 +210,10 @@ public class PmmlModelProcessor extends StreamProcessor<State>  {
                         }
                     }
                     complexEventPopulater.populateComplexEvent(event, output);
-                    nextProcessor.process(complexEventChunk);
+                    nextProcessor.process(streamEventChunk);
                 } catch (PMMLException e) {
-                    logger.error("Error while predicting. Invalid result occurred while evaluating the model",
-                            e);
-                    throw new SiddhiAppRuntimeException("Error while predicting", e);
+                    throw new SiddhiAppRuntimeException("Error while predicting. Invalid result occurred while " +
+                            "evaluating the model", e);
                 }
             }
         }
