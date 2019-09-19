@@ -28,7 +28,7 @@
 
     <artifactId>siddhi-gpl-execution-pmml</artifactId>
     <name>Siddhi gpl execution pmml Extension</name>
-    <url>https://github.com/wso2-extensions/siddhi-gpl-execution-pmml</url>
+    <url>https://github.com/siddhi-io/siddhi-gpl-execution-pmml</url>
     <packaging>bundle</packaging>
 
     <dependencies>
