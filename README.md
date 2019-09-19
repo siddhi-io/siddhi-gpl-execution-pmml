@@ -20,11 +20,11 @@ For information on <a target="_blank" href="https://siddhi.io/">Siddhi</a> and i
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-pmml/api/5.0.0">5.0.0</a>.
+Latest API Docs is <a target="_blank" href="https://siddhi-io.github.io/siddhi-gpl-execution-pmml/api/5.0.1">5.0.1</a>.
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-pmml/api/5.0.0/#predict-stream-processor">predict</a> *<a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a>*<br><div style="padding-left: 1em;"><p>This extension processes the input stream attributes according to the defined PMML standard model and outputs the processed results together with the input stream attributes.</p></div>
+* <a target="_blank" href="https://siddhi-io.github.io/siddhi-gpl-execution-pmml/api/5.0.1/#predict-stream-processor">predict</a> *(<a target="_blank" href="http://siddhi.io/en/v5.1/docs/query-guide/#stream-processor">Stream Processor</a>)*<br> <div style="padding-left: 1em;"><p><p style="word-wrap: break-word;margin: 0;">This extension processes the input stream attributes according to the defined PMML standard model and outputs the processed results together with the input stream attributes.</p></p></div>
 
 ## Dependencies 
 
